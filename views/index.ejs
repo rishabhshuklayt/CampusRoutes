@@ -3,19 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-control-custom"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
     <title>Document</title>
     <style>
-        #map { height: 100vh; width: 100%; }
+        #map {
+            height: 50vh;
+            width: 90%;
+        }
     </style>
 </head>
 <body>
-    <div id="map"></div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- <div class="container mx-auto mt-4 row">
+        <button type="button" class=" col md-5 mx-2 btn btn-primary w-50 rounded-lg">Primary Button</button>
+        <button type="button" class=" col md-5 mx-2 btn btn-success btn-lg w-50">Large Button</button>
+    </div> -->
+    <div class="container mx-auto mt-4  d-flex flex-row">
+       
+       
+            <button type="button" class=" col md-5 mx-2 btn btn-success btn-lg w-50"><img src="https://i.pinimg.com/564x/6c/9f/4c/6c9f4c642a991328afa318537f403917.jpg" alt="" width="34" height="34" srcset="">
+                Welcome Rishabh Shukla</button>
+        </div>
+    
+    </div>
+    <div id="map" class="mx-auto container-fluid mt-4" style="border: 2px solid black; border-radius: 15px;"></div>
+    <div class="container mx-auto mt-4 row">
+        
+        <button type="button" class=" col md-5 mx-2 btn btn-success btn-lg w-50">Distance: || Time: </button>
+    </div>
+    <div class="container mx-auto mt-4 row">
+        <button type="button" class=" col md-5 mx-2 btn btn-primary w-50 rounded-lg">Seats Available: 20</button>
+        <button type="button" class=" col md-5 mx-2 btn btn-success btn-lg w-50">Large Button</button>
+    </div>
+    <div class="container mx-auto mt-4 row">
+       
+        <button type="button" class=" col md-5 mx-2 btn btn-outline-success btn-lg w-50">Welcome Onboard</button>
+    </div>
+   
+    
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.7/umd/popper.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
     <script src="/javascripts/Map.js"></script>
 </body>
 </html>
