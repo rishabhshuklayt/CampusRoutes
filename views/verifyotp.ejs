@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
+    <title>OTP Verification</title>
+    <style>
+        .form-container {
+            border-radius: 15px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-button {
+            margin-top: 20px;
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .form-button:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .form-label {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto mt-4">
+        <div class="form-container mx-auto">
+            <h2 class="text-center mb-4">OTP Verification</h2>
+            <form action="/auth/verifyotp" method="POST">
+                <div class="mb-3">
+                    <label for="otp" class="form-label">Enter OTP</label>
+                    <input type="text" class="form-control" id="otp" name="clientOtp" placeholder="Enter the 6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                </div>
+                <button type="submit" class="btn form-button w-100">Verify OTP</button>
+            </form>
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+</body>
+</html>
