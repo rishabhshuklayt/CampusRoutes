@@ -121,6 +121,8 @@ routingControl.on('routesfound', function (e) {
     var distance = summary.totalDistance / 1000; // distance in km
     var time = summary.totalTime / 3600; // time in hours
 
-    console.log('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
+    // console.log('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
     alert('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
+    var routeInfoDiv = document.getElementById('route-info');
+    routeInfoDiv.innerHTML = `Distance: ${distance.toFixed(2)} km || Time: ${time.toFixed(2)} hours`;
 });
