@@ -1,22 +1,28 @@
-const express = require('express')
+const jwt = require('jsonwebtoken')
+const studentModel = require('../model/student')
 require('dotenv').config()
 
-const isLoggedIn = (req, res, next)=>{
-    // Check if user is logged in using session or any other method
-    const token = req.cookies.token
+const isLoggedIn = async(req, res, next)=>{
+    const token = req.cookies.token;
+
     if(!token){
-        // return res.redirect('/login')
-        return res.json({ success: false, message: "User not logged in" })
+        return res.redirect('/auth/login')
     }
-    jwt.verify(token, process.env.JWT_SSH, (err, decoded)=>{
-        if(err){
-            // return res.redirect('/login')
-            return res.json({ success: false, message: "Invalid token" })
-        }
-        req.user = decoded
-        console.log(req.user)
-        next()
-    })
+  try {
+    
+    const decode = jwt.verify(token, process.env.JWT_SSH)
+    const student = await studentModel.findById(decode._id);
+    
+    if(!student){
+        return res.redirect('/login')
+    }
+    req.student = student;
+    next();
+
+  } catch (error) {
+    console.log('Error during token verification:', error);
+    return res.status(401).redirect('/login');
+  }
 }
 
-module.exports = isLoggedIn
+module.exports = isLoggedIn;
