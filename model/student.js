@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const studentSchema = mongoose.Schema({
     firstName: String,
-    lastname: String,
+    lastName: String,
     rollNumber: String,
     course: String,
     phoneNo:String,
