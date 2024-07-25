@@ -14,7 +14,7 @@ const isLoggedIn = async(req, res, next)=>{
     const student = await studentModel.findById(decode._id);
     
     if(!student){
-        return res.redirect('/login')
+        return res.redirect('/auth/login')
     }
     req.student = student;
     next();
