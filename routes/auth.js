@@ -1,15 +1,15 @@
-const express = require('express');
-const session = require('express-session');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const multer = require('multer');
+const express = require("express");
+const session = require("express-session");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const multer = require("multer");
 const router = express.Router();
 
-const { sendOtpMail, sendWelcomeEmail } = require('../controller/mailer');
-const { generateOtp } = require('../controller/otpGenerator');
-const studentModel = require('../model/student');
-const otpModel = require('../model/otp');
-require('dotenv').config();
+const { sendOtpMail, sendWelcomeEmail } = require("../controller/mailer");
+const { generateOtp } = require("../controller/otpGenerator");
+const studentModel = require("../model/student");
+const otpModel = require("../model/otp");
+require("dotenv").config();
 
 // Multer setup
 const storage = multer.memoryStorage();
@@ -20,119 +20,161 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
 // Register route
-router.get('/register', (req, res) => {
-    res.render('Registration');
+router.get("/register", (req, res) => {
+  res.render("Registration");
 });
 
-router.post('/register', upload.single('avatar'), async (req, res, next) => {
-    const {
-        firstName,
-        lastName,
-        rollNumber,
-        course,
-        homeAddress,
-        pickupPoint,
-        dropoffPoint,
-        dob,
-        year,
-        phoneNo,
-        email,
-        gender,
-        password,
-    } = req.body;
+router.post("/register", upload.single("avatar"), async (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    rollNumber,
+    course,
+    homeAddress,
+    pickupPoint,
+    dropoffPoint,
+    dob,
+    year,
+    phoneNo,
+    email,
+    gender,
+    password,
+  } = req.body;
 
-    const avatar = req.file;
-    console.log("Destructuring complete");
+  const avatar = req.file;
+  console.log("Destructuring complete");
 
-    try {
-        // Async hashing
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+  try {
+    // Async hashing
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = {
-            firstName,
-            lastName,
-            rollNumber,
-            course,
-            homeAddress,
-            pickupPoint,
-            dropoffPoint,
-            dob,
-            year,
-            phoneNo,
-            email,
-            gender,
-            avatar: avatar ? avatar.buffer : null,
-            password: hashedPassword,
-        };
+    const user = {
+      firstName,
+      lastName,
+      rollNumber,
+      course,
+      homeAddress,
+      pickupPoint,
+      dropoffPoint,
+      dob,
+      year,
+      phoneNo,
+      email,
+      gender,
+      avatar: avatar ? avatar.buffer : null,
+      password: hashedPassword,
+    };
 
-        console.log("User object created");
+    console.log("User object created");
 
-        // Set session data
-        req.session.user = user;
-        console.log("Session initiated");
+    // Set session data
+    req.session.user = user;
+    console.log("Session initiated");
 
-        // Generating OTP
-        const otp = await generateOtp();
-        console.log("OTP generated");
+    // Generating OTP
+    const otp = await generateOtp();
+    console.log("OTP generated");
 
-        const newOtp = new otpModel({ otp, email });
-        await newOtp.save();
-        console.log("OTP saved");
+    const newOtp = new otpModel({ otp, email });
+    await newOtp.save();
+    console.log("OTP saved");
 
-        // Send OTP email
-        await sendOtpMail(firstName, lastName, email, otp);
-        res.redirect('/auth/verifyotp');
-    } catch (error) {
-        console.log("Error during registration:", error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+    // Send OTP email
+    await sendOtpMail(firstName, lastName, email, otp);
+    res.redirect("/auth/verifyotp");
+  } catch (error) {
+    console.log("Error during registration:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Verify OTP route
-router.get('/verifyotp', (req, res) => {
-    res.render('verifyotp');
+router.get("/verifyotp", (req, res) => {
+  res.render("verifyotp");
 });
 
-router.post('/verifyotp', async (req, res, next) => {
-    const { clientOtp } = req.body;
+router.post("/verifyotp", async (req, res, next) => {
+  const { clientOtp } = req.body;
 
-    if (!req.session.user) {
-        return res.status(400).json({ message: 'Session expired or user not registered' });
+  if (!req.session.user) {
+    return res
+      .status(400)
+      .json({ message: "Session expired or user not registered" });
+  }
+
+  const userData = req.session.user;
+
+  try {
+    console.log(clientOtp);
+    console.log(userData.email);
+    const result = await otpModel.findOne({
+      otp: clientOtp,
+      email: userData.email,
+    });
+    console.log(result);
+    if (!result) {
+      return res.status(401).json({ message: "Invalid OTP" });
     }
 
-    const userData = req.session.user;
+    const newUser = new studentModel(userData);
+    await newUser.save();
 
-    try {
-        console.log(clientOtp)
-        console.log(userData.email)
-        const result = await otpModel.findOne({ otp: clientOtp, email: userData.email });
-        console.log(result)
-        if (!result) {
-            return res.status(401).json({ message: 'Invalid OTP' });
-        }
+    // Generating JWT token
+    const token = jwt.sign(
+      { _id: newUser._id, email: newUser.email },
+      process.env.JWT_SSH,
+      { expiresIn: "2h" }
+    );
 
-        const newUser = new studentModel(userData);
-        await newUser.save();
+    // Setting token in cookies
+    res.cookie("token", token);
 
-        // Generating JWT token
-        const token = jwt.sign({ _id: newUser._id, email: newUser.email }, process.env.JWT_SSH, { expiresIn: '2h' });
+    // Sending Welcome email
+    await sendWelcomeEmail(newUser.email, newUser.firstName, newUser.lastName);
 
-        // Setting token in cookies
-        res.cookie("token", token);
-
-        // Sending Welcome email
-        await sendWelcomeEmail(newUser.email, newUser.firstName, newUser.lastName);
-        
-        // Destroy session after successful verification
-        req.session.destroy();
-        res.redirect('/test');
-
-        
-    } catch (error) {
-        console.log("Error during OTP verification:", error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+    // Destroy session after successful verification
+    req.session.destroy();
+    res.redirect("/");
+  } catch (error) {
+    console.log("Error during OTP verification:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
+/// making get route for login rendring page
+router.get("/login", (req, res, next) => {
+  res.render("login");
+});
+// makin post route for login
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body;
 
+  try {
+    const user = await studentModel.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // Generating JWT token
+    const token = jwt.sign(
+      { _id: user._id, email: user.email },
+      process.env.JWT_SSH,
+      { expiresIn: "2h" }
+    );
+
+    // Setting token in cookies
+    res.cookie("token", token);
+
+    res.redirect("/");
+  } catch (error) {
+    console.log("Error during login:", error);
+  }
+});
 module.exports = router;
