@@ -31,15 +31,28 @@ const markers = {};
 
 // Socket event listener for 'receive-location'
 socket.on('receive-location', (data) => {
-    const { id, latitude, longitude } = data;
-    console.log(data);
+    const { id, latitude, longitude, user } = data;
+    console.log('Received location:', data);
+
+    const avatarUrl = `data:image/png;base64,${user.avatar}`;
+    
+    // Create a custom DivIcon for the user
+    const userIcon = L.divIcon({
+        html: `<img src="${avatarUrl}" alt="Avatar" style="width:50px;height:50px;border-radius:50%;">`,
+        className: 'custom-div-icon',
+        iconSize: [50, 50],
+        iconAnchor: [25, 25]
+    });
+
     if (markers[id]) {
         markers[id].setLatLng([latitude, longitude]);
+        console.log(`Updated marker for user ${user.name} at ${latitude}, ${longitude}`);
     } else {
-        markers[id] = L.marker([latitude, longitude], { draggable: false })
+        markers[id] = L.marker([latitude, longitude], { icon: userIcon, draggable: false })
             .addTo(map)
-            .bindPopup(`User ${id}`)
+            .bindPopup(`User: ${user.name}`)
             .openPopup();
+        console.log(`Added marker for user ${user.name} at ${latitude}, ${longitude}`);
     }
 });
 
@@ -48,6 +61,7 @@ socket.on('user-disconnected', (id) => {
     if (markers[id]) {
         map.removeLayer(markers[id]);
         delete markers[id];
+        console.log(`Removed marker for user with id ${id}`);
     }
 });
 
@@ -90,7 +104,9 @@ var routingControl = L.Routing.control({
     createMarker: function (i, waypoint, n) {
         // Create non-draggable markers
         return L.marker(waypoint.latLng, {
-            draggable: false // Set draggable to false to prevent dragging
+            draggable: false, // Set draggable to false to prevent dragging
+            createMarker: function() { return null; },
+            addWaypoints: false,
         }).bindPopup("Waypoint " + (i + 1));
     }
 }).addTo(map);
@@ -121,8 +137,8 @@ routingControl.on('routesfound', function (e) {
     var distance = summary.totalDistance / 1000; // distance in km
     var time = summary.totalTime / 3600; // time in hours
 
-    // console.log('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
-    alert('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
+    console.log('Distance: ' + distance.toFixed(2) + ' km\nTime: ' + time.toFixed(2) + ' hours');
+
     var routeInfoDiv = document.getElementById('route-info');
     routeInfoDiv.innerHTML = `Distance: ${distance.toFixed(2)} km || Time: ${time.toFixed(2)} hours`;
 });
