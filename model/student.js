@@ -14,7 +14,7 @@ const studentSchema = mongoose.Schema({
     year: Number,
     email: String,
     gender: String,
-    avtar: Buffer,
+    avatar: Buffer,
 })
 
 module.exports = mongoose.model("student", studentSchema)
