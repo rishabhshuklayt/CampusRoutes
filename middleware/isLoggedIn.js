@@ -21,7 +21,7 @@ const isLoggedIn = async(req, res, next)=>{
 
   } catch (error) {
     console.log('Error during token verification:', error);
-    return res.status(401).redirect('/login');
+    return res.status(401).redirect('/auth/login');
   }
 }
 
