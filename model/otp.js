@@ -12,7 +12,7 @@ const oneTimePassword = new mongoose.Schema({
     createdAt:{
         type: Date,
         default: Date.now(),
-        index: {expires:  '5m'}
+        index: {expires:  '10m'}
     }
 })
 
